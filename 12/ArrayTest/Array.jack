@@ -1,0 +1,35 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Array.jack
+
+/**
+ * Represents an array.
+ * In the Jack language, arrays are instances of the Array class.
+ * Once declared, the array entries can be accessed using the usual
+ * syntax arr[i]. Each array entry can hold a primitive data type as 
+ * well as any object type. Different array entries can have different 
+ * data types.
+ */
+class Array {
+
+	// There is no field variable
+	/** A constructor automatically allocates the correct sized memory block to hold the object's fields, so a constructor 	for Array would not allocate any storage to hold the Array elements.
+
+	By using a function masquerading as a constructor, Array can allocate the required variable sized memory block. */
+	
+    /** Constructs a new Array of the given size. */
+    function Array new(int size) {
+		var Array arr;
+		if ((size < 0) | (size = 0)) {do Sys.error(2);}
+		if (size > 0) {let arr = Memory.alloc(size);}
+		return arr;
+    }
+
+    /** Disposes this array. */
+    method void dispose() {
+		// Points to the current Array object;
+		do Memory.deAlloc(this);
+		return;
+    }
+}

@@ -1,0 +1,107 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A library of commonly used mathematical functions.
+ * Note: Jack compilers implement multiplication and division using OS method calls.
+ */
+class Math {
+	
+    /** Initializes the library. */
+    function void init() {
+		return;
+    }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x) {
+		if (x < 0) {return -x;}
+		else {return x;}
+    }
+
+    /** Returns the product of x and y. 
+     *  When a Jack compiler detects the multiplication operator '*' in the 
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x*y and multiply(x,y) return the same value.
+     */
+    function int multiply(int x, int y) {
+		var int sum, count;
+		let count = Math.abs(y);
+		let sum = 0;
+		
+		while (count > 0) {
+			let sum = sum + x;
+			let count = count - 1;
+		}
+		
+		if (y < 0) {let sum = -sum;}
+		
+		return sum;
+    }
+
+    /** Returns the integer part of x/y.
+     *  When a Jack compiler detects the multiplication operator '/' in the 
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x/y and divide(x,y) return the same value.
+     */
+    function int divide(int x, int y) {
+		var int newx, div, newy;
+		
+		if (y = 0) {do Sys.error(3);} // Division by zero
+		
+		let div = 0;
+		let newx = Math.abs(x);
+		let newy = Math.abs(y);
+		
+		while (newx > newy) {
+			let newx = newx - newy;
+			let div = div + 1;
+		}
+		
+		if (newx = newy) {let div = div + 1;} // Jack language does not support <= operator
+		
+		if (x < 0){
+			if (y > 0) {
+			let div = -div;}	// Do not use x*y < 0 here due to the risk of overflow
+		}
+		
+		if (x > 0){
+			if (y < 0) {
+			let div = -div;}
+		}
+		
+		return div;
+    }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x) {
+		var int n;
+		
+		if (x < 0) {do Sys.error(4);} // Cannot compute square root of a negative number
+		
+		if (x < 4) {return 1;}
+		
+		else {		
+		let n = 2;
+		
+		while (n * n < x) {
+			let n = n + 1;
+			if (n * n < 0) {return n-1;} // overflow means n is too big, so subtract 1 from n
+			}
+		}
+		return n;
+    }
+
+    /** Returns the greater number. */
+    function int max(int a, int b) {
+		if (a > b) {return a;}
+		else {return b;}
+    }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b) {
+		if (a < b) {return a;}
+		else {return b;}
+    }
+}

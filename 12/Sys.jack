@@ -1,0 +1,68 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Sys.jack
+
+/**
+ * A library that supports various program execution services.
+ */
+class Sys {
+
+    /** Performs all the initializations required by the OS. */
+    function void init() {
+		do Math.init();
+		do Memory.init();
+		do Screen.init();
+		do Keyboard.init();
+		do Output.init();
+		do Main.main();
+		return;
+    }
+
+    /** Halts the program execution. */
+    function void halt() {
+		var int i;
+		while (true) {let i = 0;}
+		return;
+    }
+
+    /** Waits approximately duration milliseconds and returns.  */
+    function void wait(int duration) {
+		var int i;
+		let i = -20000;
+		while (i < (duration*10)) {
+			let i = i + 1;
+		}
+		return;
+    }
+
+    /** Displays the given error code in the form "ERR<errorCode>",
+     *  and halts the program's execution. */
+    function void error(int errorCode) {
+		do Output.printString("ERR<");
+		do Output.printInt(errorCode);
+		do Output.printString(">");
+		do Sys.halt();
+/** 		if (errorCode = 1) {do Output.printString("ERR<01>");}
+		if (errorCode = 2) {do Output.printString("ERR<02>");}
+		if (errorCode = 3) {do Output.printString("ERR<03>");}
+		if (errorCode = 4) {do Output.printString("ERR<04>");}
+		if (errorCode = 5) {do Output.printString("ERR<05>");}
+		if (errorCode = 6) {do Output.printString("ERR<06>");}
+		if (errorCode = 7) {do Output.printString("ERR<07>");}
+		if (errorCode = 8) {do Output.printString("ERR<08>");}
+		if (errorCode = 9) {do Output.printString("ERR<09>");}
+		if (errorCode = 10) {do Output.printString("ERR<10>");}
+		if (errorCode = 11) {do Output.printString("ERR<11>");}
+		if (errorCode = 12) {do Output.printString("ERR<12>");}
+		if (errorCode = 13) {do Output.printString("ERR<13>");}
+		if (errorCode = 14) {do Output.printString("ERR<14>");}
+		if (errorCode = 15) {do Output.printString("ERR<14>");}
+		if (errorCode = 16) {do Output.printString("ERR<14>");}
+		if (errorCode = 17) {do Output.printString("ERR<14>");}
+		if (errorCode = 18) {do Output.printString("ERR<14>");}
+		if (errorCode = 14) {do Output.printString("ERR<14>");}
+		if (errorCode = 14) {do Output.printString("ERR<14>");} */
+		return;
+    }
+}

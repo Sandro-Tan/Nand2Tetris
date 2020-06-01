@@ -1,0 +1,100 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+	static Array ram, heap;
+	static int freeList;
+	
+    /** Initializes the class. */
+    function void init() {
+		let ram = 0;
+		let heap = 2048;	// heap base
+		let freeList = heap; 
+		let heap[0] = 0; // next
+		let heap[1] = 14334; // heap size
+		return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+		return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+		let ram[address] = value;
+		return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+	 
+    function int alloc(int size) {
+		var int block; // the base address of found space
+		
+		if (size < 0) {do Sys.error(5);} // Allocated memory size must be positive
+		
+		if (heap[0] = 0) {	// empty RAM
+			if (heap[1] > size + 2) {
+				let block = freeList + 2; // freeList = 2048
+				let heap[0] = size + 2;	// heap[0] = address of next node
+				let heap[1] = 0; // marked this memory block as allocated
+				
+				let freeList = heap[0]; // freeList = 5 (assume size = 3)
+				let heap[freeList] = 0; // set 2nd node as terminal
+				let heap[freeList+1] = 14334 - size - 2 - 2; // set available size for the second node
+			}
+		}
+		
+		
+		else {
+			let freeList = 0; // search from the first node
+			
+			while (heap[freeList] > 0) {
+				let freeList = heap[freeList]; // go to the final node
+			
+			if (freeList > 32767) {do Sys.error(6);} // Heap overflow
+			if (heap[freeList] = 0){
+				if (heap[freeList+1] > size + 2){
+					let block = 2048 + freeList + 2;  
+					let heap[freeList] = freeList + 2 + size; // set address for next node
+					
+					
+					let heap[heap[freeList]] = 0;  // mark next node as the last one
+					let heap[heap[freeList] + 1] = heap[freeList + 1] - size - 2;  // set available size for the last node
+					
+					let heap[freeList + 1] = 0; // mark the second to last node as allocated
+					
+					return block; // loop breaker
+					}
+				}
+			}
+		}
+		
+		return block;
+	}
+	 /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) {
+		// This function seems redundant, as there is no array length function provided by the OS
+		// Without this function, the code can still pass all tests
+		let freeList = 0;
+
+		while (heap[freeList] > 0){
+			let freeList = heap[freeList];
+				if (heap[freeList] = 0){
+					let heap[freeList] = o;  // set the old last node to point to new array
+					let o[0] = 0;	// set the new array as the last node
+					return;
+			}
+		}
+		return;
+	}
+}

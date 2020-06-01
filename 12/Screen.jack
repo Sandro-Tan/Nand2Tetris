@@ -1,0 +1,210 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
+ * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+	static boolean currentcolor;
+	static Array scr;
+	
+    /** Initializes the Screen. */
+    function void init() {
+		var Array scr;
+		
+		let currentcolor = true;
+		let scr = 16384;
+		return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+		var int address;
+		var Array scr;
+		
+		let address = 0;
+			
+		while (address < 8192) {
+			let scr[address] = 0;
+			let address = address + 1;
+		}
+		
+		return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+		if (b) {let currentcolor = true;}
+		else {let currentcolor = false;}
+		return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+		var int address, value, remainder, count, twotoremainder;
+		var Array scr;
+		
+		if ((x < 0) | (y < 0) | (x > 511) | (y > 255)) {do Sys.error(7);} // Illegal pixel coordinates
+		
+		
+		let address = (x / 16) + (32 * y);
+		let remainder = x - ((x / 16) * 16); // remainder = x % 16
+		
+		if (remainder = 0) {let twotoremainder = 1;}
+		else {
+			let count = 0;
+			let twotoremainder = 1;
+		
+			while (count < remainder) {
+				let count = count + 1;
+				let twotoremainder = twotoremainder * 2;
+			}
+		}
+		
+		if (currentcolor) {let scr[16384 + address] = scr[16384 + address] + twotoremainder;}
+		else {let scr[16384 + address] = scr[16384 + address] - twotoremainder;}
+		
+		return;
+    }
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+		var int dx, dy, diff, a, b;		
+		
+		if ((x1 < 0) | (y1 < 0) | (x2 < 0) | (y2 < 0) | (x1 > 511) | (x2 > 511) | (y1 > 255) | (y2 > 255)) {
+			do Sys.error(8); // Illegal line coordinates
+		}
+		
+		let dx = x1 - x2;
+		let dy = y1 - y2;
+		let diff = (a * Math.abs(dy)) - (b * Math.abs(dx));
+		
+		// draw a vertical line
+		if ((dx = 0) & (dy > 0)) {
+				let b = 0;
+				while (b < dy){
+					do Screen.drawPixel(x1, y1 - b);
+					let b = b + 1;
+				}
+			}
+		
+		if ((dx = 0) & (dy < 0)) {
+			let b = 0;
+			while ( b < (-dy) ){
+				do Screen.drawPixel(x1, y1 + b);
+				let b = b + 1;	
+				}
+			}
+
+		// draw a horizontal line
+		if ((dy = 0) & (dx > 0)) {
+			let a = 0;
+			while ( a < dx ) {
+				let a = a + 1;
+				do Screen.drawPixel(x1 - a, y1);
+				}
+			}
+
+		if ((dy = 0) & (dx < 0)) {
+			let a = 0;
+				while ( a < (-dx) ) {
+					let a = a + 1;
+					do Screen.drawPixel(x1 + a, y1);
+				}
+			}
+		
+		// draw a sloped line
+		if ((dx > 0) & (dy > 0)) {
+			let a = 0;
+			let b = 0;
+	
+			while ( (a - dx) * (b - dy) > 0 ) {
+				do Screen.drawPixel(x1 - a, y1 - b);
+				
+				if (diff < 0) {let a = a + 1; let diff = diff + dy;} 
+				else {let b = b + 1; let diff = diff - dx;}
+				}
+			}
+		
+		if ((dx > 0) & (dy < 0)) {
+			let a = 0;
+			let b = 0;
+
+			while ( (a - dx) * (b + dy) > 0 ) {
+				do Screen.drawPixel(x1 - a, y1 + b);
+				
+				if (diff < 0) {let a = a + 1; let diff = diff - dy;} 
+				else {let b = b + 1; let diff = diff - dx;}
+				}
+			}
+	
+	
+	
+		if ((dx < 0) & (dy > 0)) {
+				let a = 0;
+				let b = 0;
+		
+				while ( (a + dx) * (b - dy) > 0 ) {
+					do Screen.drawPixel(x1 + a, y1 - b);
+					
+					if (diff < 0) {let a = a + 1; let diff = diff + dy;} 
+					else {let b = b + 1; let diff = diff - Math.abs(dx);}
+				}
+			}
+		
+		if ((dx < 0) & (dy < 0)) {
+				let a = 0;
+				let b = 0;
+		
+				while ( (a + dx) * (b + dy) > 0 ) {
+					do Screen.drawPixel(x1 + a, y1 + b);
+					
+					if (diff < 0) {let a = a + 1; let diff = diff + Math.abs(dy);} 
+					else {let b = b + 1; let diff = diff - Math.abs(dx);}
+				}
+			}
+	
+	return;
+}
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+		var int count;
+		
+		if ((x1 < 0) | (y1 < 0) | (x2 < 0) | (y2 < 0) | (x1 > 511) | (x2 > 511) | (y1 > 255) | (y2 > 255)) {
+			do Sys.error(8); // Illegal rectangle coordinates
+		}
+		
+		let count = 0;
+		
+		while (count < (x2 - x1)) {
+			do Screen.drawLine(x1 + count, y1, x1 + count, y2);
+			let count = count + 1;
+		}
+		return;
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    function void drawCircle(int x, int y, int r) {
+		var int dy, sqrt;
+		
+		if ((x < 0) | (y < 0) | (x > 511) | (y > 255)) {do Sys.error(12);} // Illegal center coordinates
+		if (r > 181) {do Sys.error(13);} // Illegal radius
+		
+		let dy = -r;
+		while ( (dy < r) | (dy = r) ) {
+			let sqrt = Math.sqrt((r*r) - (dy*dy));
+			do Screen.drawLine(x - sqrt, y + dy, x + sqrt, y + dy);
+			let dy = dy + 1;
+		}
+		
+		return;
+    }
+}
